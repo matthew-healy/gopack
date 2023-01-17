@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/module"
 
-	"github.com/cloudsmith-io/gopack"
+	"github.com/matthew-healy/gopack"
 )
 
 var rootCmd = &cobra.Command{
