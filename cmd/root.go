@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"errors"
@@ -9,8 +9,13 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/module"
 
-	"github.com/matthew-healy/gopack"
+	"github.com/matthew-healy/gopack/archive"
+	"github.com/matthew-healy/gopack/modfile"
 )
+
+func Execute() error {
+	return rootCmd.Execute()
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "gopack <version> [<path>]",
@@ -29,7 +34,7 @@ var rootCmd = &cobra.Command{
 		if len(args) >= 2 {
 			dir = args[1]
 		}
-		modPath, err := gopack.GetModuleNameFromModfile(dir)
+		modPath, err := modfile.GetModuleNameFromModfile(dir)
 		if err != nil {
 			fmt.Printf("Unable to determine module path: %s", err.Error())
 			os.Exit(1)
@@ -40,7 +45,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var filter gopack.FileFilter
+		var filter archive.FileFilter
 		if filterRegex != "" {
 			r, err := regexp.Compile(filterRegex)
 
@@ -54,7 +59,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		if err := gopack.CreateModuleArchive(dir, modPath, version, filter); err != nil {
+		if err := archive.CreateModuleArchive(dir, modPath, version, filter); err != nil {
 			fmt.Printf("Unable to create module archive: %s", err.Error())
 			os.Exit(1)
 		}
@@ -65,10 +70,4 @@ var filterRegex string
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&filterRegex, "filter", "", "regex to use when filter input files")
-}
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
 }
